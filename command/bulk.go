@@ -125,6 +125,7 @@ var (
 	externalId        string
 	concurrencyMode   string
 	pkChunkSize       int
+	batchSize         int
 	pkChunkParent     string
 	waitForCompletion bool
 )
@@ -149,6 +150,8 @@ func init() {
 	cmdBulk.Flag.BoolVar(&waitForCompletion, "w", false, "Wait for job to complete")
 	cmdBulk.Flag.IntVar(&pkChunkSize, "chunk", 0, "PK chunk size")
 	cmdBulk.Flag.IntVar(&pkChunkSize, "p", 0, "PK chunk size")
+	cmdBulk.Flag.IntVar(&batchSize, "batchSize", 10000, "Batch size")
+    cmdBulk.Flag.IntVar(&batchSize, "s", 10000, "Batch size")
 	cmdBulk.Flag.StringVar(&pkChunkParent, "parent", "", "PK chunk parent")
 	cmdBulk.Run = runBulk
 }
@@ -603,7 +606,7 @@ func createBulkUpsertJob(csvFilePath string, objectType string, format string, e
 func addBatchToJob(csvFilePath string, job JobInfo) (result BatchInfo, err error) {
 	force, _ := ActiveForce()
 
-	batches, err := SplitCSV(csvFilePath, 10000)
+	batches, err := SplitCSV(csvFilePath, batchSize)
 	if err != nil {
 		return
 	}
